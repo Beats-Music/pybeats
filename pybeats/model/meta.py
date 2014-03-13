@@ -72,3 +72,29 @@ class Track(Object):
 
     def get_artists(self, api, **kwargs):
         return self._get_collection(api,'artists', **kwargs)
+
+class Genre(Object):
+    type = "genre"
+    fields = ['name', 'username', 'verified']
+
+    def __init__(self, **data):
+        super(Genre, self).__init__(**data)
+
+    @property
+    def display_string(self):
+        return self.name
+
+    def get_featured(self, api, **kwargs):
+        return self._get_collection(api,'featured', **kwargs)
+
+    def get_new_releases(self, api, **kwargs):
+        return self._get_collection(api,'new_releases', **kwargs)
+
+    def get_editors_picks(self, api, **kwargs):
+        return self._get_collection(api,'editors_picks', **kwargs)
+
+    def get_playlists(self, api, **kwargs):
+        return self._get_collection(api,'playlists', **kwargs)
+
+    def get_bios(self, api, **kwargs):
+        return self._get_collection(api,'bios', **kwargs)

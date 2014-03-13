@@ -65,6 +65,8 @@ class Base(object):
             return meta.Artist
         elif data_type == 'track':
             return meta.Track
+        elif data_type == 'genre':
+            return meta.Genre
         return None
 
     @staticmethod
