@@ -178,3 +178,37 @@ class BeatsAPI(object):
 
     def get_track_artists(self, track_id, **kwargs):
         return self._get_resource_collection('track', album_id, 'artists', **kwargs)
+
+    ## activities
+
+    def get_activity(self, **kwargs):
+        return self._get_collection('v1/api/activities', **kwargs)
+
+    def get_activity_metadata(self, activity_id, **kwargs):
+        return self._get_resource_metadata('activitie', activity_id, **kwargs)
+
+    def get_activity_editorial_playlists(self, activity_id, **kwargs):
+        return self._get_resource_collection('activitie', activity_id, 'editorial_playlists', **kwargs)
+
+    ## genres
+
+    def get_genres(self, **kwargs):
+        return self._get_collection('v1/api/genres', **kwargs)
+
+    def get_genre_metadata(self, genre_id, **kwargs):
+        return self._get_resource_metadata('genre', genre_id, **kwargs)
+
+    def get_genre_editors_picks(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'editors_picks', **kwargs)
+
+    def get_genre_featured(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'featured', **kwargs)
+
+    def get_genre_new_releases(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'new_releases', **kwargs)
+
+    def get_genre_bios(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'bios', **kwargs)
+
+    def get_genre_playlists(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'playlists', **kwargs)
