@@ -160,6 +160,9 @@ class BeatsAPI(object):
     def get_artist_essential_albums(self, artist_id, **kwargs):
         return self._get_resource_collection('artist', artist_id, 'essential_albums', **kwargs)
 
+    def get_artist_images(self, artist_id, **kwargs):
+        return self._get_resource_collection('artist', artist_id, 'images', **kwargs)
+
     ## albums
 
     def get_albums(self, **kwargs):
@@ -224,6 +227,9 @@ class BeatsAPI(object):
 
     def get_genre_playlists(self, genre_id, **kwargs):
         return self._get_resource_collection('genre', genre_id, 'playlists', **kwargs)
+
+    def get_genre_images(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'images', **kwargs)
 
     ## playlists
 

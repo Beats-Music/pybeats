@@ -19,15 +19,14 @@ class Artist(Object):
     def get_tracks(self, api, **kwargs):
         return self._get_collection(api,'tracks', **kwargs)
 
-    def get_images(self, api, **kwargs):
-        return self._get_collection(api,'images', **kwargs)
-
     def get_playlists(self, api, **kwargs):
         return self._get_collection(api,'albums', **kwargs)
 
     def get_essential_albums(self, api, **kwargs):
         return self._get_collection(api,'essential_albums', **kwargs)
 
+    def get_images(self, api, **kwargs):
+        return self._get_collection(api,'images', **kwargs)
 
 class Album(Object):
     type = "album"
@@ -99,3 +98,6 @@ class Genre(Object):
 
     def get_bios(self, api, **kwargs):
         return self._get_collection(api,'bios', **kwargs)
+
+    def get_images(self, api, **kwargs):
+        return self._get_collection(api,'images', **kwargs)

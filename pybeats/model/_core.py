@@ -61,6 +61,7 @@ class Base(object):
         import meta
         import playlist
         import editorial
+        import image
         if data_type == 'album':
             return meta.Album
         elif data_type == 'artist':
@@ -75,6 +76,8 @@ class Base(object):
             return editorial.Bio
         elif data_type == 'review':
             return editorial.Review
+        elif data_type == 'image':
+            return image.Image
         return None
 
     @staticmethod
