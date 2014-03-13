@@ -11,10 +11,46 @@ class BeatsAPI(object):
         self.client_id = client_id
         self.client_secret = client_secret
 
-    def __request(self, method, url, **kwargs):
-        r = requests_request(method, url, **kwargs)
+    def __param_key_for_method(self, method):
+        key = 'data'
+        if method == 'GET' or method == 'DELETE':
+            key = 'params'
+
+        return key
+
+    def __request(self, method, path, **kwargs):
+
+        key = self.__param_key_for_method(method)
+
+        if key not in kwargs:
+            kwargs[key] = { 'client_id' : self.client_id }
+        else:
+            kwargs[key]['client_id'] = self.client_id
+
+        r = requests_request(method, 'https://partner.api.beatsmusic.com/' + path, **kwargs)
+
         try:
             return r.json()
+        except:
+            return None
+
+    def __authed_request(self, method, path, **kwargs):
+
+        key = self.__param_key_for_method(method)
+
+        if key not in kwargs:
+            kwargs[key] = { 'access_token' : self.access_token }
+        else:
+            kwargs[key]['access_token'] = self.access_token
+
+        r = requests_request(method, 'https://partner.api.beatsmusic.com/' + path, **kwargs)
+
+        try:
+            if r.status_code == 401 and 'stop' not in kwargs:
+                self.refresh_token()
+                return self.__authed_request(method, path, stop=True, **kwargs)
+            else:
+                return r.json()
         except:
             return None
 
@@ -32,7 +68,7 @@ class BeatsAPI(object):
         headers = {
             'Referer' : 'https://partner.api.beatsmusic.com/oauth2/authorize'
         }
-        r = requests_request('POST', 'https://partner.api.beatsmusic.com/api/o/oauth2/approval', data=data, headers=headers, allow_redirects=False, **kwargs)
+        r = requests_request('post', 'https://partner.api.beatsmusic.com/api/o/oauth2/approval', data=data, headers=headers, allow_redirects=False, **kwargs)
 
         try :
             location = r.headers['location']
@@ -46,12 +82,17 @@ class BeatsAPI(object):
     def __token(self, code, **kwargs):
         data = {
             'redirect_uri' : 'http://www.example.com',
-            'client_id' : self.client_id,
             'client_secret' : self.client_secret,
             'code' : code
         }
 
-        return self.__request('POST', 'https://partner.api.beatsmusic.com/oauth2/token', data=data, **kwargs)
+        data = self.__request('post', 'oauth2/token', data=data, **kwargs)
+
+        if data is not None:
+            self.refresh_token = data['result']['refresh_token']
+            self.access_token = data['result']['access_token']
+
+        return data
 
 
     def login(self, username, password, **kwargs):
@@ -62,15 +103,20 @@ class BeatsAPI(object):
 
         return self.__token(code)
 
-    def refresh_token(self, refresh_token, **kwargs):
+    def refresh_token(self, **kwargs):
         data = {
             'redirect_uri' : 'http://www.example.com',
-            'client_id' : self.client_id,
             'client_secret' : self.client_secret,
             'grant_type' : 'refresh_token',
-            'refresh_token' : refresh_token
+            'refresh_token' : self.refresh_token
         }
-        return self.__request('POST', 'https://partner.api.beatsmusic.com/oauth2/token', data=data, **kwargs)
 
+        data = self.__request('POST', 'oauth2/token', data=data, **kwargs)
+
+        if data is not None:
+            self.refresh_token = data['result']['refresh_token']
+            self.access_token = data['result']['access_token']
+
+        return data
 
 
