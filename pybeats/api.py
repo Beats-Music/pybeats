@@ -11,16 +11,16 @@ class BeatsAPI(object):
         self.client_id = client_id
         self.client_secret = client_secret
 
-    def __param_key_for_method(self, method):
+    def _param_key_for_method(self, method):
         key = 'data'
         if method == 'GET' or method == 'DELETE':
             key = 'params'
 
         return key
 
-    def __request(self, method, path, **kwargs):
+    def _request(self, method, path, **kwargs):
 
-        key = self.__param_key_for_method(method)
+        key = self._param_key_for_method(method)
 
         if key not in kwargs:
             kwargs[key] = { 'client_id' : self.client_id }
@@ -34,9 +34,9 @@ class BeatsAPI(object):
         except:
             return None
 
-    def __authed_request(self, method, path, **kwargs):
+    def _authed_request(self, method, path, **kwargs):
 
-        key = self.__param_key_for_method(method)
+        key = self._param_key_for_method(method)
 
         if key not in kwargs:
             kwargs[key] = { 'access_token' : self.access_token }
@@ -48,13 +48,13 @@ class BeatsAPI(object):
         try:
             if r.status_code == 401 and 'stop' not in kwargs:
                 self.refresh_token()
-                return self.__authed_request(method, path, stop=True, **kwargs)
+                return self._authed_request(method, path, stop=True, **kwargs)
             else:
                 return r.json()
         except:
             return None
 
-    def __code(self, username, password, **kwargs):
+    def _code(self, username, password, **kwargs):
         data = {
             'login' : username,
             'password' : password,
@@ -79,14 +79,14 @@ class BeatsAPI(object):
         except:
             return None
 
-    def __token(self, code, **kwargs):
+    def _token(self, code, **kwargs):
         data = {
             'redirect_uri' : 'http://www.example.com',
             'client_secret' : self.client_secret,
             'code' : code
         }
 
-        data = self.__request('post', 'oauth2/token', data=data, **kwargs)
+        data = self._request('post', 'oauth2/token', data=data, **kwargs)
 
         if data is not None:
             self.refresh_token = data['result']['refresh_token']
@@ -96,12 +96,12 @@ class BeatsAPI(object):
 
 
     def login(self, username, password, **kwargs):
-        code = self.__code(username, password)
+        code = self._code(username, password)
 
         if code is None:
             return None
 
-        return self.__token(code)
+        return self._token(code)
 
     def refresh_token(self, **kwargs):
         data = {
@@ -111,7 +111,7 @@ class BeatsAPI(object):
             'refresh_token' : self.refresh_token
         }
 
-        data = self.__request('POST', 'oauth2/token', data=data, **kwargs)
+        data = self._request('POST', 'oauth2/token', data=data, **kwargs)
 
         if data is not None:
             self.refresh_token = data['result']['refresh_token']
@@ -121,11 +121,60 @@ class BeatsAPI(object):
 
     # basic metadata
 
-    def __get_collection(self, path, prefix="", **kwargs):
-        return self.__request('get', '{0}{1}'.format(prefix, path), params=kwargs)
+    def _get_collection(self, path, prefix="", **kwargs):
+        return self._request('get', '{0}{1}'.format(prefix, path), params=kwargs)
 
-    def __get_resource_metadata(self, resource_type, resource_id, **kwargs):
-        return self.__request('get', '/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
+    def _get_resource_metadata(self, resource_type, resource_id, **kwargs):
+        return self._request('get', 'v1/api/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
 
-    def __get_resource_collection(self, resource_type, resource_id, collection_path, **kwargs):
-        return self.__get_collection(collection_path, prefix='/{0}s/{1}'.format(resource_type, resource_id), **kwargs)
+    def _get_resource_collection(self, resource_type, resource_id, collection_path, **kwargs):
+        return self._get_collection(collection_path, prefix='v1/api/{0}s/{1}'.format(resource_type, resource_id), **kwargs)
+
+
+    ## artists
+
+    def get_artists(self, **kwargs):
+        return self._get_collection('v1/api/artists', **kwargs)
+
+    def get_artist_metadata(self, artist_id, **kwargs):
+        return self._get_resource_metadata('artist', artist_id, **kwargs)
+
+    def get_artist_tracks(self, artist_id, **kwargs):
+        return self._get_resource_collection('artist', artist_id, 'tracks', **kwargs)
+
+    def get_artist_albums(self, artist_id, **kwargs):
+        return self._get_resource_collection('artist', artist_id, 'albums', **kwargs)
+
+    def get_artist_essential_albums(self, artist_id, **kwargs):
+        return self._get_resource_collection('artist', artist_id, 'essential_albums', **kwargs)
+
+    ## albums
+
+    def get_albums(self, **kwargs):
+        return self._get_collection('v1/api/albums', **kwargs)
+
+    def get_album_metadata(self, album_id, **kwargs):
+        return self._get_resource_metadata('album', album_id, **kwargs)
+
+    def get_album_artists(self, album_id, **kwargs):
+        return self._get_resource_collection('album', album_id, 'artists', **kwargs)
+
+    def get_album_tracks(self, album_id, **kwargs):
+        return self._get_resource_collection('album', album_id, 'tracks', **kwargs)
+
+    def get_album_reviews(self, album_id, **kwargs):
+        return self._get_resource_collection('album', album_id, 'reviews', **kwargs)
+
+    def get_album_companion_albums(self, album_id, **kwargs):
+        return self._get_resource_collection('album', album_id, 'companion_albums', **kwargs)
+
+    ## tracks
+
+    def get_tracks(self, **kwargs):
+        return self._get_collection('v1/api/tracks', **kwargs)
+
+    def get_track_metadata(self, track_id, **kwargs):
+        return self._get_resource_metadata('track', track_id, **kwargs)
+
+    def get_track_artists(self, track_id, **kwargs):
+        return self._get_resource_collection('track', album_id, 'artists', **kwargs)
