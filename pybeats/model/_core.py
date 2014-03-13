@@ -60,6 +60,7 @@ class Base(object):
     def class_for_type(data_type):
         import meta
         import playlist
+        import editorial
         if data_type == 'album':
             return meta.Album
         elif data_type == 'artist':
@@ -70,6 +71,10 @@ class Base(object):
             return meta.Genre
         elif data_type == 'playlist':
             return playlist.Playlist
+        elif data_type == 'bio':
+            return editorial.Bio
+        elif data_type == 'review':
+            return editorial.Review
         return None
 
     @staticmethod

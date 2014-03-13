@@ -47,9 +47,10 @@ class Album(Object):
     def get_tracks(self, api, **kwargs):
         return self._get_collection(api,'tracks', **kwargs)
 
-    # not supported yet
-    # def get_reviews(self, api, **kwargs):
-    #     return self._get_collection(api,'reviews', **kwargs)
+    def get_review(self, api, **kwargs):
+        import editorial
+        req_data = api.get_album_review(self.identifier, **kwargs)
+        return editorial.Review(**req_data.get('data', {}))
 
     def get_companion_albums(self, api, **kwargs):
         return self._get_collection(api,'companion_albums', **kwargs)

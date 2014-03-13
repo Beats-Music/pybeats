@@ -174,8 +174,8 @@ class BeatsAPI(object):
     def get_album_tracks(self, album_id, **kwargs):
         return self._get_resource_collection('album', album_id, 'tracks', **kwargs)
 
-    def get_album_reviews(self, album_id, **kwargs):
-        return self._get_resource_collection('album', album_id, 'reviews', **kwargs)
+    def get_album_review(self, album_id, **kwargs):
+        return self._request('get', self.base_path + '/albums/{0}/review'.format(album_id), params=kwargs)
 
     def get_album_companion_albums(self, album_id, **kwargs):
         return self._get_resource_collection('album', album_id, 'companion_albums', **kwargs)
