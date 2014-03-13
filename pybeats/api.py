@@ -119,4 +119,13 @@ class BeatsAPI(object):
 
         return data
 
+    # basic metadata
 
+    def __get_collection(self, path, prefix="", **kwargs):
+        return self.__request('get', '{0}{1}'.format(prefix, path), params=kwargs)
+
+    def __get_resource_metadata(self, resource_type, resource_id, **kwargs):
+        return self.__request('get', '/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
+
+    def __get_resource_collection(self, resource_type, resource_id, collection_path, **kwargs):
+        return self.__get_collection(collection_path, prefix='/{0}s/{1}'.format(resource_type, resource_id), **kwargs)
