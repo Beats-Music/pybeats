@@ -27,7 +27,7 @@ class BeatsAPI(object):
         else:
             kwargs[key]['client_id'] = self.client_id
 
-        r = requests_request(method, 'https://partner.api.beatsmusic.com/' + path, **kwargs)
+        r = requests_request(method, 'https://partner.api.beatsmusic.com' + path, **kwargs)
 
         try:
             return r.json()
@@ -36,14 +36,12 @@ class BeatsAPI(object):
 
     def _authed_request(self, method, path, **kwargs):
 
-        key = self._param_key_for_method(method)
-
-        if key not in kwargs:
-            kwargs[key] = { 'access_token' : self.access_token }
+        if 'headers' not in kwargs:
+            kwargs['headers'] = { 'Authorization' : 'Bearer {0}'.format(self.access_token) }
         else:
-            kwargs[key]['access_token'] = self.access_token
+            kwargs['headers']['Authorization'] = 'Bearer {0}'.format(self.access_token)
 
-        r = requests_request(method, 'https://partner.api.beatsmusic.com/' + path, **kwargs)
+        r = requests_request(method, 'https://partner.api.beatsmusic.com' + path, **kwargs)
 
         try:
             if r.status_code == 401 and 'stop' not in kwargs:
@@ -86,7 +84,7 @@ class BeatsAPI(object):
             'code' : code
         }
 
-        data = self._request('post', 'oauth2/token', data=data, **kwargs)
+        data = self._request('post', '/oauth2/token', data=data, **kwargs)
 
         if data is not None:
             self.refresh_token = data['result']['refresh_token']
@@ -111,7 +109,7 @@ class BeatsAPI(object):
             'refresh_token' : self.refresh_token
         }
 
-        data = self._request('POST', 'oauth2/token', data=data, **kwargs)
+        data = self._request('post', '/oauth2/token', data=data, **kwargs)
 
         if data is not None:
             self.refresh_token = data['result']['refresh_token']
@@ -119,22 +117,33 @@ class BeatsAPI(object):
 
         return data
 
+    def get_me(self):
+        return self._authed_request('get', '/v1/api/me')
+
     # basic metadata
 
     def _get_collection(self, path, prefix="", **kwargs):
         return self._request('get', '{0}{1}'.format(prefix, path), params=kwargs)
 
     def _get_resource_metadata(self, resource_type, resource_id, **kwargs):
-        return self._request('get', 'v1/api/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
+        return self._request('get', '/v1/api/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
 
     def _get_resource_collection(self, resource_type, resource_id, collection_path, **kwargs):
-        return self._get_collection(collection_path, prefix='v1/api/{0}s/{1}'.format(resource_type, resource_id), **kwargs)
+        return self._get_collection(collection_path, prefix='/v1/api/{0}s/{1}'.format(resource_type, resource_id), **kwargs)
 
+    def _authed_get_collection(self, path, prefix="", **kwargs):
+        return self._authed_request('get', '{0}{1}'.format(prefix, path), params=kwargs)
+
+    def _authed_get_resource_metadata(self, resource_type, resource_id, **kwargs):
+        return self._authed_request('get', '/v1/api/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
+
+    def _authed_get_resource_collection(self, resource_type, resource_id, collection_path, **kwargs):
+        return self._authed_get_collection(collection_path, prefix='/v1/api/{0}s/{1}/'.format(resource_type, resource_id), **kwargs)
 
     ## artists
 
     def get_artists(self, **kwargs):
-        return self._get_collection('v1/api/artists', **kwargs)
+        return self._get_collection('/v1/api/artists', **kwargs)
 
     def get_artist_metadata(self, artist_id, **kwargs):
         return self._get_resource_metadata('artist', artist_id, **kwargs)
@@ -151,7 +160,7 @@ class BeatsAPI(object):
     ## albums
 
     def get_albums(self, **kwargs):
-        return self._get_collection('v1/api/albums', **kwargs)
+        return self._get_collection('/v1/api/albums', **kwargs)
 
     def get_album_metadata(self, album_id, **kwargs):
         return self._get_resource_metadata('album', album_id, **kwargs)
@@ -171,7 +180,7 @@ class BeatsAPI(object):
     ## tracks
 
     def get_tracks(self, **kwargs):
-        return self._get_collection('v1/api/tracks', **kwargs)
+        return self._get_collection('/v1/api/tracks', **kwargs)
 
     def get_track_metadata(self, track_id, **kwargs):
         return self._get_resource_metadata('track', track_id, **kwargs)
@@ -182,7 +191,7 @@ class BeatsAPI(object):
     ## activities
 
     def get_activity(self, **kwargs):
-        return self._get_collection('v1/api/activities', **kwargs)
+        return self._get_collection('/v1/api/activities', **kwargs)
 
     def get_activity_metadata(self, activity_id, **kwargs):
         return self._get_resource_metadata('activitie', activity_id, **kwargs)
@@ -193,7 +202,7 @@ class BeatsAPI(object):
     ## genres
 
     def get_genres(self, **kwargs):
-        return self._get_collection('v1/api/genres', **kwargs)
+        return self._get_collection('/v1/api/genres', **kwargs)
 
     def get_genre_metadata(self, genre_id, **kwargs):
         return self._get_resource_metadata('genre', genre_id, **kwargs)
@@ -212,3 +221,20 @@ class BeatsAPI(object):
 
     def get_genre_playlists(self, genre_id, **kwargs):
         return self._get_resource_collection('genre', genre_id, 'playlists', **kwargs)
+
+    ## playlists
+
+    def get_playlist_metadata(self, playlist_id, **kwargs):
+        return self._authed_get_resource_metadata('playlist', playlist_id, **kwargs)
+
+    def get_playlist_tracks(self, playlist_id, **kwargs):
+        return self._authed_get_resource_collection('playlist', playlist_id, 'tracks', **kwargs)
+
+    def get_playlist_subscribers(self, playlist_id, **kwargs):
+        return self._authed_get_resource_collection('playlist', playlist_id, 'subscribers', **kwargs)
+
+    def get_playlists_for_user(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'playlists', **kwargs)
+
+    def get_playlist_subscriptions_for_user(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'playlist_subscriptions', **kwargs)
