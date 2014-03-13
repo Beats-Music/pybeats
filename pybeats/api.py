@@ -7,6 +7,9 @@ except ImportError:
 
 class BeatsAPI(object):
 
+    base_url = 'https://partner.api.beatsmusic.com'
+    base_path = '/v1/api'
+
     def __init__(self, client_id="", client_secret="", **kwargs):
         self.client_id = client_id
         self.client_secret = client_secret
@@ -27,7 +30,7 @@ class BeatsAPI(object):
         else:
             kwargs[key]['client_id'] = self.client_id
 
-        r = requests_request(method, 'https://partner.api.beatsmusic.com' + path, **kwargs)
+        r = requests_request(method, self.base_url + path, **kwargs)
 
         try:
             return r.json()
@@ -41,7 +44,7 @@ class BeatsAPI(object):
         else:
             kwargs['headers']['Authorization'] = 'Bearer {0}'.format(self.access_token)
 
-        r = requests_request(method, 'https://partner.api.beatsmusic.com' + path, **kwargs)
+        r = requests_request(method, self.base_url + path, **kwargs)
 
         try:
             if r.status_code == 401 and 'stop' not in kwargs:
@@ -118,32 +121,32 @@ class BeatsAPI(object):
         return data
 
     def get_me(self):
-        return self._authed_request('get', '/v1/api/me')
+        return self._authed_request('get', self.base_path + 'me')
 
     # basic metadata
 
-    def _get_collection(self, path, prefix="", **kwargs):
-        return self._request('get', '{0}{1}'.format(prefix, path), params=kwargs)
+    def _get_collection(self, path, prefix="/", **kwargs):
+        return self._request('get', self.base_path + '{0}{1}'.format(prefix, path), params=kwargs)
 
     def _get_resource_metadata(self, resource_type, resource_id, **kwargs):
-        return self._request('get', '/v1/api/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
+        return self._request('get', self.base_path + '/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
 
     def _get_resource_collection(self, resource_type, resource_id, collection_path, **kwargs):
-        return self._get_collection(collection_path, prefix='/v1/api/{0}s/{1}'.format(resource_type, resource_id), **kwargs)
+        return self._get_collection(collection_path, prefix='/{0}s/{1}/'.format(resource_type, resource_id), **kwargs)
 
-    def _authed_get_collection(self, path, prefix="", **kwargs):
-        return self._authed_request('get', '{0}{1}'.format(prefix, path), params=kwargs)
+    def _authed_get_collection(self, path, prefix="/", **kwargs):
+        return self._authed_request('get', self.base_path + '{0}{1}'.format(prefix, path), params=kwargs)
 
     def _authed_get_resource_metadata(self, resource_type, resource_id, **kwargs):
-        return self._authed_request('get', '/v1/api/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
+        return self._authed_request('get', self.base_path + '/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
 
     def _authed_get_resource_collection(self, resource_type, resource_id, collection_path, **kwargs):
-        return self._authed_get_collection(collection_path, prefix='/v1/api/{0}s/{1}/'.format(resource_type, resource_id), **kwargs)
+        return self._authed_get_collection(collection_path, prefix='/{0}s/{1}/'.format(resource_type, resource_id), **kwargs)
 
     ## artists
 
     def get_artists(self, **kwargs):
-        return self._get_collection('/v1/api/artists', **kwargs)
+        return self._get_collection('artists', **kwargs)
 
     def get_artist_metadata(self, artist_id, **kwargs):
         return self._get_resource_metadata('artist', artist_id, **kwargs)
@@ -160,7 +163,7 @@ class BeatsAPI(object):
     ## albums
 
     def get_albums(self, **kwargs):
-        return self._get_collection('/v1/api/albums', **kwargs)
+        return self._get_collection('albums', **kwargs)
 
     def get_album_metadata(self, album_id, **kwargs):
         return self._get_resource_metadata('album', album_id, **kwargs)
@@ -180,7 +183,7 @@ class BeatsAPI(object):
     ## tracks
 
     def get_tracks(self, **kwargs):
-        return self._get_collection('/v1/api/tracks', **kwargs)
+        return self._get_collection('tracks', **kwargs)
 
     def get_track_metadata(self, track_id, **kwargs):
         return self._get_resource_metadata('track', track_id, **kwargs)
@@ -191,7 +194,7 @@ class BeatsAPI(object):
     ## activities
 
     def get_activity(self, **kwargs):
-        return self._get_collection('/v1/api/activities', **kwargs)
+        return self._get_collection('activities', **kwargs)
 
     def get_activity_metadata(self, activity_id, **kwargs):
         return self._get_resource_metadata('activitie', activity_id, **kwargs)
@@ -202,7 +205,7 @@ class BeatsAPI(object):
     ## genres
 
     def get_genres(self, **kwargs):
-        return self._get_collection('/v1/api/genres', **kwargs)
+        return self._get_collection('genres', **kwargs)
 
     def get_genre_metadata(self, genre_id, **kwargs):
         return self._get_resource_metadata('genre', genre_id, **kwargs)

@@ -90,7 +90,7 @@ class Ref(Base):
 
     @property
     def relative_path(self):
-        return "v1/api/{0}/{1}".format(Base.pluralize_type(self.ref_type), self.identifier)
+        return "{0}/{1}".format(Base.pluralize_type(self.ref_type), self.identifier)
 
     def default_image_url(self, size):
         return "http://im.api.beatsmusic.com/api/{0}/{1}/images/default?size={2}".format(Base.pluralize_type(self.ref_type), self.identifier, size)
@@ -112,7 +112,7 @@ class Object(Base):
 
     @property
     def relative_path(self):
-        return "v1/api/{0}/{1}".format(Base.pluralize_type(self.type), self.identifier)
+        return "{0}/{1}".format(Base.pluralize_type(self.type), self.identifier)
 
     def default_image_url(self, size):
         return "http://im.api.beatsmusic.com/api/{0}/images/default?size={1}".format(self.relative_path, size)
@@ -128,7 +128,7 @@ class Object(Base):
 
     @classmethod
     def get(cls, api, **kwargs):
-        coll = PagingCollection("v1/api/{0}".format(Base.pluralize_type(cls.type)), **kwargs)
+        coll = PagingCollection("{0}".format(Base.pluralize_type(cls.type)), **kwargs)
         coll.fetch_next(api)
         return coll
 
@@ -174,6 +174,17 @@ class PagingCollection(Collection):
         self.total = -1
         self.page_size = 20
 
+    def _fetch_page(self, api, **kwargs):
+        page_data = api._get_collection(self.relative_path, **kwargs)
+        try:
+            self.total = page_data.get('info', {}).get('total')
+            new_elements = page_data.get('data', [])
+            self._process_data(new_elements)
+        except Exception, err:
+            # handle failure to get anything
+            if self.total == -1:
+                self.total = 0
+
     def fetch_next(self, api, **kwargs):
         if self.at_end:
             return
@@ -184,16 +195,7 @@ class PagingCollection(Collection):
         }
         payload.update(self.options)
         payload.update(kwargs)
-
-        try:
-            page_data = api._get_collection(self.relative_path, **payload)
-            self.total = page_data.get('info', {}).get('total')
-            new_elements = page_data.get('data', [])
-            self._process_data(new_elements)
-        except Exception, err:
-            # handle failure to get anything
-            if self.total == -1:
-                self.total = 0
+        self._fetch_page(api, **payload)
 
     def fetch(self, api, **kwargs):
         while not self.at_end:
