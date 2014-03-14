@@ -248,6 +248,9 @@ class PagingCollection(Collection):
 
 class PagingAuthedCollection(PagingCollection):
 
+    def __init__(self, relative_path, **kwargs):
+        super(PagingAuthedCollection, self).__init__(relative_path, **kwargs)
+
     def _fetch_data(self, api, **kwargs):
         return api._authed_get_collection(self.relative_path, **kwargs)
 
