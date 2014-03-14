@@ -150,6 +150,11 @@ class Object(Base):
         coll.fetch_next(api)
         return coll
 
+    def _get_authed_collection(self, api, path, **kwargs):
+        coll = PagingAuthedCollection("{0}/{1}".format(self.relative_path, path), **kwargs)
+        coll.fetch_next(api)
+        return coll
+
 class Collection(object):
 
     def __init__(self, relative_path, **kwargs):
@@ -187,8 +192,11 @@ class PagingCollection(Collection):
         self.total = -1
         self.page_size = 20
 
+    def _fetch_data(self, api, **kwargs):
+        return api._get_collection(self.relative_path, **kwargs)
+
     def _fetch_page(self, api, **kwargs):
-        page_data = api._get_collection(self.relative_path, **kwargs)
+        page_data = self._fetch_data(api, **kwargs)
         try:
             self.total = page_data.get('info', {}).get('total')
             new_elements = page_data.get('data', [])
@@ -225,3 +233,9 @@ class PagingCollection(Collection):
     @property
     def at_end(self):
         return self.total == self.count
+
+class PagingAuthedCollection(PagingCollection):
+
+    def _fetch_data(self, api, **kwargs):
+        return api._authed_get_collection(self.relative_path, **kwargs)
+

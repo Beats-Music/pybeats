@@ -1,5 +1,5 @@
 from pybeats.api import BeatsAPI
-from _core import Object,PagingCollection
+from _core import Object,PagingAuthedCollection
 
 class Playlist(Object):
     type = "playlist"
@@ -19,19 +19,7 @@ class Playlist(Object):
         coll.fetch_rest(api)
         return coll
 
-class PlaylistTracksCollection(PagingCollection):
+class PlaylistTracksCollection(PagingAuthedCollection):
     def __init__(self, relative_path, playlist_id, **kwargs):
         super(PlaylistTracksCollection, self).__init__(relative_path, **kwargs)
         self.playlist_id = playlist_id
-
-    def _fetch_page(self, api, **kwargs):
-        try:
-            page_data = api._authed_get_collection(self.relative_path, **kwargs)
-            self.total = page_data.get('info', {}).get('total')
-            new_elements = page_data.get('data', [])
-            self._process_data(new_elements)
-        except Exception as err:
-            print err
-            # handle failure to get anything
-            if self.total == -1:
-                self.total = 0
