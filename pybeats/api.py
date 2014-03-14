@@ -264,3 +264,11 @@ class BeatsAPI(object):
 
     def get_playlist_subscriptions_for_user(self, user_id, **kwargs):
         return self._authed_get_resource_collection('user', user_id, 'playlist_subscriptions', **kwargs)
+
+    # recommendations
+
+    def get_featured_content(self):
+        return self._get_collection('discoveries/featured')
+
+    def get_editors_picks(self):
+        return self._get_collection('discoveries/editor_picks')

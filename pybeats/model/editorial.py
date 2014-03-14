@@ -35,3 +35,21 @@ class Review(Base):
         obj = super(Review, self).serialize_to_dictionary(with_refs)
         obj['subject'] = self.parent.serialize_to_dictionary(with_refs)
         return obj
+
+class Recommendation(Base):
+    type = "recommendation"
+    fields = ['blurb']
+
+    def __init__(self, **data):
+        super(Recommendation, self).__init__(**data)
+
+    def _update_from_data(self, data):
+        super(Recommendation, self)._update_from_data(data)
+        content = data.get('content', {})
+        cls = Base.class_for_type(content.get('type', ''))
+        self.content = cls(**content)
+
+    def serialize_to_dictionary(self, with_refs=True):
+        obj = super(Recommendation, self).serialize_to_dictionary(with_refs)
+        obj['content'] = self.content.serialize_to_dictionary(with_refs)
+        return obj

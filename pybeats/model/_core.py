@@ -70,12 +70,16 @@ class Base(object):
             return meta.Track
         elif data_type == 'genre':
             return meta.Genre
+        elif data_type == 'user':
+            return meta.User
         elif data_type == 'playlist':
             return playlist.Playlist
         elif data_type == 'bio':
             return editorial.Bio
         elif data_type == 'review':
             return editorial.Review
+        elif data_type == 'recommendation':
+            return editorial.Recommendation
         elif data_type == 'image':
             return image.Image
         return None
@@ -180,9 +184,10 @@ class Collection(object):
             self._process_datum(datum)
 
     def fetch(self, api, **kwargs):
-        response_data = api._get_collection(self.relative_path, **payload)
-        new_elements = response_data.get('data', [])
-        self._process_data(new_elements)
+        response_data = api._get_collection(self.relative_path, **kwargs)
+        if response_data is not None:
+            new_elements = response_data.get('data', [])
+            self._process_data(new_elements)
 
 
 class PagingCollection(Collection):
