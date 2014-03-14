@@ -18,7 +18,8 @@ setup(
     keywords = "daisy mog beats beatsmusic sdk",
     url = "http://developer.beatsmusic.com",
     packages=[
-        'pybeats'
+        'pybeats',
+        'pybeats.model'
     ],
     install_requires=[
         "requests >= 2.3.0"
