@@ -7,18 +7,55 @@ except ImportError:
 
 class BeatsAPI(object):
 
+    base_url = 'https://partner.api.beatsmusic.com'
+    base_path = '/v1/api'
+
     def __init__(self, client_id="", client_secret="", **kwargs):
         self.client_id = client_id
         self.client_secret = client_secret
 
-    def __request(self, method, url, **kwargs):
-        r = requests_request(method, url, **kwargs)
+    def _param_key_for_method(self, method):
+        key = 'data'
+        if method == 'GET' or method == 'DELETE':
+            key = 'params'
+
+        return key
+
+    def _request(self, method, path, **kwargs):
+
+        key = self._param_key_for_method(method)
+
+        if key not in kwargs:
+            kwargs[key] = { 'client_id' : self.client_id }
+        else:
+            kwargs[key]['client_id'] = self.client_id
+
+        r = requests_request(method, self.base_url + path, **kwargs)
+
         try:
             return r.json()
         except:
             return None
 
-    def __code(self, username, password, **kwargs):
+    def _authed_request(self, method, path, **kwargs):
+
+        if 'headers' not in kwargs:
+            kwargs['headers'] = { 'Authorization' : 'Bearer {0}'.format(self.access_token) }
+        else:
+            kwargs['headers']['Authorization'] = 'Bearer {0}'.format(self.access_token)
+
+        r = requests_request(method, self.base_url + path, **kwargs)
+
+        try:
+            if r.status_code == 401 and 'stop' not in kwargs:
+                self.refresh_token()
+                return self._authed_request(method, path, stop=True, **kwargs)
+            else:
+                return r.json()
+        except:
+            return None
+
+    def _code(self, username, password, **kwargs):
         data = {
             'login' : username,
             'password' : password,
@@ -32,7 +69,7 @@ class BeatsAPI(object):
         headers = {
             'Referer' : 'https://partner.api.beatsmusic.com/oauth2/authorize'
         }
-        r = requests_request('POST', 'https://partner.api.beatsmusic.com/api/o/oauth2/approval', data=data, headers=headers, allow_redirects=False, **kwargs)
+        r = requests_request('post', 'https://partner.api.beatsmusic.com/api/o/oauth2/approval', data=data, headers=headers, allow_redirects=False, **kwargs)
 
         try :
             location = r.headers['location']
@@ -43,34 +80,187 @@ class BeatsAPI(object):
         except:
             return None
 
-    def __token(self, code, **kwargs):
+    def _token(self, code, **kwargs):
         data = {
             'redirect_uri' : 'http://www.example.com',
-            'client_id' : self.client_id,
             'client_secret' : self.client_secret,
             'code' : code
         }
 
-        return self.__request('POST', 'https://partner.api.beatsmusic.com/oauth2/token', data=data, **kwargs)
+        data = self._request('post', '/oauth2/token', data=data, **kwargs)
+
+        if data is not None:
+            self.refresh_token = data['result']['refresh_token']
+            self.access_token = data['result']['access_token']
+
+        return data
 
 
     def login(self, username, password, **kwargs):
-        code = self.__code(username, password)
+        code = self._code(username, password)
 
         if code is None:
             return None
 
-        return self.__token(code)
+        return self._token(code)
 
-    def refresh_token(self, refresh_token, **kwargs):
+    def refresh_token(self, **kwargs):
         data = {
             'redirect_uri' : 'http://www.example.com',
-            'client_id' : self.client_id,
             'client_secret' : self.client_secret,
             'grant_type' : 'refresh_token',
-            'refresh_token' : refresh_token
+            'refresh_token' : self.refresh_token
         }
-        return self.__request('POST', 'https://partner.api.beatsmusic.com/oauth2/token', data=data, **kwargs)
 
+        data = self._request('post', '/oauth2/token', data=data, **kwargs)
 
+        if data is not None:
+            self.refresh_token = data['result']['refresh_token']
+            self.access_token = data['result']['access_token']
 
+        return data
+
+    def get_me(self):
+        return self._authed_request('get', self.base_path + '/me')
+
+    # basic metadata
+
+    def _get_collection(self, path, prefix="/", **kwargs):
+        return self._request('get', self.base_path + '{0}{1}'.format(prefix, path), params=kwargs)
+
+    def _get_resource_metadata(self, resource_type, resource_id, **kwargs):
+        return self._request('get', self.base_path + '/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
+
+    def _get_resource_collection(self, resource_type, resource_id, collection_path, **kwargs):
+        return self._get_collection(collection_path, prefix='/{0}s/{1}/'.format(resource_type, resource_id), **kwargs)
+
+    def _authed_get_collection(self, path, prefix="/", **kwargs):
+        return self._authed_request('get', self.base_path + '{0}{1}'.format(prefix, path), params=kwargs)
+
+    def _authed_get_resource_metadata(self, resource_type, resource_id, **kwargs):
+        return self._authed_request('get', self.base_path + '/{0}s/{1}'.format(resource_type, resource_id), params=kwargs)
+
+    def _authed_get_resource_collection(self, resource_type, resource_id, collection_path, **kwargs):
+        return self._authed_get_collection(collection_path, prefix='/{0}s/{1}/'.format(resource_type, resource_id), **kwargs)
+
+    ## artists
+
+    def get_artists(self, **kwargs):
+        return self._get_collection('artists', **kwargs)
+
+    def get_artist_metadata(self, artist_id, **kwargs):
+        return self._get_resource_metadata('artist', artist_id, **kwargs)
+
+    def get_artist_tracks(self, artist_id, **kwargs):
+        return self._get_resource_collection('artist', artist_id, 'tracks', **kwargs)
+
+    def get_artist_albums(self, artist_id, **kwargs):
+        return self._get_resource_collection('artist', artist_id, 'albums', **kwargs)
+
+    def get_artist_essential_albums(self, artist_id, **kwargs):
+        return self._get_resource_collection('artist', artist_id, 'essential_albums', **kwargs)
+
+    def get_artist_images(self, artist_id, **kwargs):
+        return self._get_resource_collection('artist', artist_id, 'images', **kwargs)
+
+    ## albums
+
+    def get_albums(self, **kwargs):
+        return self._get_collection('albums', **kwargs)
+
+    def get_album_metadata(self, album_id, **kwargs):
+        return self._get_resource_metadata('album', album_id, **kwargs)
+
+    def get_album_artists(self, album_id, **kwargs):
+        return self._get_resource_collection('album', album_id, 'artists', **kwargs)
+
+    def get_album_tracks(self, album_id, **kwargs):
+        return self._get_resource_collection('album', album_id, 'tracks', **kwargs)
+
+    def get_album_review(self, album_id, **kwargs):
+        return self._request('get', self.base_path + '/albums/{0}/review'.format(album_id), params=kwargs)
+
+    def get_album_companion_albums(self, album_id, **kwargs):
+        return self._get_resource_collection('album', album_id, 'companion_albums', **kwargs)
+
+    ## tracks
+
+    def get_tracks(self, **kwargs):
+        return self._get_collection('tracks', **kwargs)
+
+    def get_track_metadata(self, track_id, **kwargs):
+        return self._get_resource_metadata('track', track_id, **kwargs)
+
+    def get_track_artists(self, track_id, **kwargs):
+        return self._get_resource_collection('track', album_id, 'artists', **kwargs)
+
+    ## activities
+
+    def get_activity(self, **kwargs):
+        return self._get_collection('activities', **kwargs)
+
+    def get_activity_metadata(self, activity_id, **kwargs):
+        return self._get_resource_metadata('activitie', activity_id, **kwargs)
+
+    def get_activity_editorial_playlists(self, activity_id, **kwargs):
+        return self._get_resource_collection('activitie', activity_id, 'editorial_playlists', **kwargs)
+
+    ## genres
+
+    def get_genres(self, **kwargs):
+        return self._get_collection('genres', **kwargs)
+
+    def get_genre_metadata(self, genre_id, **kwargs):
+        return self._get_resource_metadata('genre', genre_id, **kwargs)
+
+    def get_genre_editors_picks(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'editors_picks', **kwargs)
+
+    def get_genre_featured(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'featured', **kwargs)
+
+    def get_genre_new_releases(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'new_releases', **kwargs)
+
+    def get_genre_bios(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'bios', **kwargs)
+
+    def get_genre_playlists(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'playlists', **kwargs)
+
+    def get_genre_images(self, genre_id, **kwargs):
+        return self._get_resource_collection('genre', genre_id, 'images', **kwargs)
+
+    ## users
+
+    def get_user_metadata(self, user_id, **kwargs):
+        return self._authed_get_resource_metadata('user', user_id, **kwargs)
+
+    def get_user_playlists(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'playlists', **kwargs)
+
+    def get_user_bios(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'bios', **kwargs)
+
+    def get_user_ratings(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'ratings', **kwargs)
+
+    def get_user_images(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'images', **kwargs)
+
+    ## playlists
+
+    def get_playlist_metadata(self, playlist_id, **kwargs):
+        return self._authed_get_resource_metadata('playlist', playlist_id, **kwargs)
+
+    def get_playlist_tracks(self, playlist_id, **kwargs):
+        return self._authed_get_resource_collection('playlist', playlist_id, 'tracks', **kwargs)
+
+    def get_playlist_subscribers(self, playlist_id, **kwargs):
+        return self._authed_get_resource_collection('playlist', playlist_id, 'subscribers', **kwargs)
+
+    def get_playlists_for_user(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'playlists', **kwargs)
+
+    def get_playlist_subscriptions_for_user(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'playlist_subscriptions', **kwargs)
