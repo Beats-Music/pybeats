@@ -121,7 +121,7 @@ class BeatsAPI(object):
         return data
 
     def get_me(self):
-        return self._authed_request('get', self.base_path + 'me')
+        return self._authed_request('get', self.base_path + '/me')
 
     # basic metadata
 
@@ -230,6 +230,23 @@ class BeatsAPI(object):
 
     def get_genre_images(self, genre_id, **kwargs):
         return self._get_resource_collection('genre', genre_id, 'images', **kwargs)
+
+    ## users
+
+    def get_user_metadata(self, user_id, **kwargs):
+        return self._authed_get_resource_metadata('user', user_id, **kwargs)
+
+    def get_user_playlists(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'playlists', **kwargs)
+
+    def get_user_bios(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'bios', **kwargs)
+
+    def get_user_ratings(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'ratings', **kwargs)
+
+    def get_user_images(self, user_id, **kwargs):
+        return self._authed_get_resource_collection('user', user_id, 'images', **kwargs)
 
     ## playlists
 

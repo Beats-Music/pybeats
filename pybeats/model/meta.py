@@ -76,6 +76,7 @@ class Track(Object):
 class Genre(Object):
     type = "genre"
     fields = ['name', 'username', 'verified']
+    refs = []
 
     def __init__(self, **data):
         super(Genre, self).__init__(**data)
@@ -92,6 +93,27 @@ class Genre(Object):
 
     def get_editors_picks(self, api, **kwargs):
         return self._get_collection(api,'editors_picks', **kwargs)
+
+    def get_playlists(self, api, **kwargs):
+        return self._get_collection(api,'playlists', **kwargs)
+
+    def get_bios(self, api, **kwargs):
+        return self._get_collection(api,'bios', **kwargs)
+
+    def get_images(self, api, **kwargs):
+        return self._get_collection(api,'images', **kwargs)
+
+class User(Object):
+    type = "user"
+    fields = ['username', 'full_name', 'verified']
+    refs = []
+
+    def __init__(self, **data):
+        super(User, self).__init__(**data)
+
+    @property
+    def display_string(self):
+        return self.name
 
     def get_playlists(self, api, **kwargs):
         return self._get_collection(api,'playlists', **kwargs)
