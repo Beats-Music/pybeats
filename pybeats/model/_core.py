@@ -61,6 +61,7 @@ class Base(object):
         import meta
         import playlist
         import editorial
+        import search
         import image
         if data_type == 'album':
             return meta.Album
@@ -80,6 +81,8 @@ class Base(object):
             return editorial.Review
         elif data_type == 'recommendation':
             return editorial.Recommendation
+        elif data_type == 'search_result':
+            return search.SearchResult
         elif data_type == 'image':
             return image.Image
         return None
@@ -183,8 +186,15 @@ class Collection(object):
         for datum in data:
             self._process_datum(datum)
 
+    def _fetch_data(self, api, **kwargs):
+        return api._get_collection(self.relative_path, **kwargs)
+
     def fetch(self, api, **kwargs):
-        response_data = api._get_collection(self.relative_path, **kwargs)
+        self.elements = []
+        payload = {}
+        payload.update(self.options)
+        payload.update(kwargs)
+        response_data = self._fetch_data(api,**payload)
         if response_data is not None:
             new_elements = response_data.get('data', [])
             self._process_data(new_elements)
@@ -196,9 +206,6 @@ class PagingCollection(Collection):
         super(PagingCollection, self).__init__(relative_path, **kwargs)
         self.total = -1
         self.page_size = 20
-
-    def _fetch_data(self, api, **kwargs):
-        return api._get_collection(self.relative_path, **kwargs)
 
     def _fetch_page(self, api, **kwargs):
         page_data = self._fetch_data(api, **kwargs)

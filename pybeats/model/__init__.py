@@ -3,3 +3,4 @@ from editorial import Bio, Review, Recommendation
 from image import Image
 from meta import Album, Artist, Track, Genre, User
 from playlist import Playlist, PlaylistTracksCollection
+from search import SearchResult

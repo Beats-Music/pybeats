@@ -272,3 +272,15 @@ class BeatsAPI(object):
 
     def get_editors_picks(self):
         return self._get_collection('discoveries/editor_picks')
+
+    # search
+
+    def get_search_results(self, query, search_type, **kwargs):
+        payload = { 'q' : query, 'type' : search_type }
+        payload.update(kwargs)
+        return self._request('get', self.base_path + '/search', params=payload)
+
+    def get_predictive_search_results(self, query, **kwargs):
+        payload = { 'q' : query }
+        payload.update(kwargs)
+        return self._request('get', self.base_path + '/search/predictive', params=payload)
