@@ -1,4 +1,3 @@
-from pybeats.api import BeatsAPI
 from meta import Album, Track, Artist
 
 class MyMusicAlbum(Album):
