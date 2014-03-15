@@ -73,6 +73,11 @@ class Track(Object):
     def get_artists(self, api, **kwargs):
         return self._get_collection(api,'artists', **kwargs)
 
+    def get_asset(self, api, **kwargs):
+        import audio
+        req_data = api.get_audio_asset(self.identifier, **kwargs)
+        return audio.Asset(**req_data.get('data', {}))
+
 class Genre(Object):
     type = "genre"
     fields = ['name', 'username', 'verified']

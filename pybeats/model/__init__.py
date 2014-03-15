@@ -1,4 +1,5 @@
 from _core import Object, Collection, PagingCollection, PagingAuthedCollection
+from audio import Asset
 from editorial import Bio, Review, Recommendation
 from image import Image
 from library import MyMusicAlbum, MyMusicArtist, MyMusicTrack

@@ -1,4 +1,3 @@
-from pybeats.api import BeatsAPI
 from _core import Object,Ref,Collection,PagingCollection
 
 class SearchResult(Object):
