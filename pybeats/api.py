@@ -304,3 +304,8 @@ class BeatsAPI(object):
 
     def get_my_library_artist_albums(self, user_id, artist_id, **kwargs):
         return self._authed_get_collection(collection_path, prefix='/users/{0}/mymusic/{1}/albums'.format(user_id, artist_id), **kwargs)
+
+    # audio
+
+    def get_audio_asset(self, track_id, **kwargs):
+        return self._authed_request('get', self.base_path + '/tracks/{0}/audio'.format(track_id), params=kwargs)
