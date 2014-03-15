@@ -284,3 +284,23 @@ class BeatsAPI(object):
         payload = { 'q' : query }
         payload.update(kwargs)
         return self._request('get', self.base_path + '/search/predictive', params=payload)
+
+    # library
+
+    def get_my_library_tracks(self, user_id):
+        return self._authed_get_resource_collection('user', user_id, 'mymusic/tracks', **kwargs)
+
+    def get_my_library_albums(self, user_id):
+        return self._authed_get_resource_collection('user', user_id, 'mymusic/albums', **kwargs)
+
+    def get_my_library_artists(self, user_id):
+        return self._authed_get_resource_collection('user', user_id, 'mymusic/artists', **kwargs)
+
+    def get_my_library_album_tracks(self, user_id, album_id, **kwargs):
+        return self._authed_get_collection(collection_path, prefix='/users/{0}/mymusic/{1}/tracks'.format(user_id, album_id), **kwargs)
+
+    def get_my_library_artist_tracks(self, user_id, artist_id, **kwargs):
+        return self._authed_get_collection(collection_path, prefix='/users/{0}/mymusic/{1}/tracks'.format(user_id, artist_id), **kwargs)
+
+    def get_my_library_artist_albums(self, user_id, artist_id, **kwargs):
+        return self._authed_get_collection(collection_path, prefix='/users/{0}/mymusic/{1}/albums'.format(user_id, artist_id), **kwargs)
