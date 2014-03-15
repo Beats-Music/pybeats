@@ -62,6 +62,7 @@ class Base(object):
         import playlist
         import editorial
         import search
+        import library
         import image
         if data_type == 'album':
             return meta.Album
@@ -83,6 +84,12 @@ class Base(object):
             return editorial.Recommendation
         elif data_type == 'search_result':
             return search.SearchResult
+        elif data_type == 'mymusic_album':
+            return library.MyMusicAlbum
+        elif data_type == 'mymusic_track':
+            return library.MyMusicTrack
+        elif data_type == 'mymusic_artist':
+            return library.MyMusicArtist
         elif data_type == 'image':
             return image.Image
         return None
@@ -247,6 +254,9 @@ class PagingCollection(Collection):
         return self.total == self.count
 
 class PagingAuthedCollection(PagingCollection):
+
+    def __init__(self, relative_path, **kwargs):
+        super(PagingAuthedCollection, self).__init__(relative_path, **kwargs)
 
     def _fetch_data(self, api, **kwargs):
         return api._authed_get_collection(self.relative_path, **kwargs)
