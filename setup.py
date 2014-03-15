@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "pybeats",
-    version = "0.0.1",
+    version = "0.1.0",
     author = "Teja Vishwanadha",
     author_email = "teja@beatsmusic.com",
     description = ("Beats Music SDK"),
