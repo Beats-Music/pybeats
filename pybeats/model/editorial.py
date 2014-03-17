@@ -38,7 +38,7 @@ class Review(Base):
 
 class Recommendation(Base):
     type = "recommendation"
-    fields = ['blurb']
+    fields = ['blurb', 'timestamp']
 
     def __init__(self, **data):
         super(Recommendation, self).__init__(**data)

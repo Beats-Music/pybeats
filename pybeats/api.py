@@ -273,6 +273,11 @@ class BeatsAPI(object):
     def get_editors_picks(self):
         return self._get_collection('discoveries/editor_picks')
 
+    def get_just_for_you(self, user_id, timezone, **kwargs):
+        payload = { 'timezone' : timezone }
+        payload.update(kwargs)
+        return self._authed_get_resource_collection('user', user_id, 'recs/just_for_you', **payload)
+
     # search
 
     def get_search_results(self, query, search_type, **kwargs):
