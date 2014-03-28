@@ -1,5 +1,5 @@
 from pybeats.api import BeatsAPI
-from _core import Base,Object
+from _core import Object,AuthedObject
 
 class Artist(Object):
     type = "artist"
@@ -108,18 +108,13 @@ class Genre(Object):
     def get_images(self, api, **kwargs):
         return self._get_collection(api,'images', **kwargs)
 
-class User(Object):
+class User(AuthedObject):
     type = "user"
     fields = ['username', 'full_name', 'verified']
     refs = []
 
     def __init__(self, **data):
         super(User, self).__init__(**data)
-
-    def fetch(self, api, **kwargs):
-        if self.identifier:
-            data = api._authed_get_resource_metadata(self.type, self.identifier, **kwargs).get('data')
-            self._update_from_data(data)
 
     @property
     def display_string(self):

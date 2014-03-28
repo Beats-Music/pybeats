@@ -1,7 +1,7 @@
 from pybeats.api import BeatsAPI
-from _core import Object,PagingAuthedCollection
+from _core import AuthedObject,PagingAuthedCollection
 
-class Playlist(Object):
+class Playlist(AuthedObject):
     type = "playlist"
     fields = ['name', 'description', 'duration', 'created_at', 'updated_at', 'access', 'total_tracks', 'user_display_name', 'parental_advisory']
     refs = ['user', 'tracks']
