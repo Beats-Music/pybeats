@@ -169,6 +169,16 @@ class Object(Base):
         coll.fetch_next(api)
         return coll
 
+class AuthedObject(Object):
+
+    def __init__(self, **data):
+        super(AuthedObject, self).__init__(**data)
+
+    def fetch(self, api, **kwargs):
+        if self.identifier:
+            data = api._authed_get_resource_metadata(self.type, self.identifier, **kwargs).get('data')
+            self._update_from_data(data)
+
 class Collection(object):
 
     def __init__(self, relative_path, **kwargs):
