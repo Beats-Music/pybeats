@@ -116,15 +116,17 @@ class User(Object):
     def __init__(self, **data):
         super(User, self).__init__(**data)
 
+    def fetch(self, api, **kwargs):
+        if self.identifier:
+            data = api._authed_get_resource_metadata(self.type, self.identifier, **kwargs).get('data')
+            self._update_from_data(data)
+
     @property
     def display_string(self):
-        return self.name
+        return self.full_name
 
     def get_playlists(self, api, **kwargs):
         return self._get_authed_collection(api, 'playlists', **kwargs)
-
-    def get_bios(self, api, **kwargs):
-        return self._get_collection(api,'bios', **kwargs)
 
     def get_images(self, api, **kwargs):
         return self._get_collection(api,'images', **kwargs)

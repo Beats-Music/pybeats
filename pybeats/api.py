@@ -95,7 +95,6 @@ class BeatsAPI(object):
 
         return data
 
-
     def login(self, username, password, **kwargs):
         code = self._code(username, password)
 
@@ -238,12 +237,6 @@ class BeatsAPI(object):
 
     def get_user_playlists(self, user_id, **kwargs):
         return self._authed_get_resource_collection('user', user_id, 'playlists', **kwargs)
-
-    def get_user_bios(self, user_id, **kwargs):
-        return self._authed_get_resource_collection('user', user_id, 'bios', **kwargs)
-
-    def get_user_ratings(self, user_id, **kwargs):
-        return self._authed_get_resource_collection('user', user_id, 'ratings', **kwargs)
 
     def get_user_images(self, user_id, **kwargs):
         return self._authed_get_resource_collection('user', user_id, 'images', **kwargs)
