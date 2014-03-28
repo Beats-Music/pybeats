@@ -100,7 +100,7 @@ class Genre(Object):
         return self._get_collection(api,'editors_picks', **kwargs)
 
     def get_playlists(self, api, **kwargs):
-        return self._get_collection(api,'playlists', **kwargs)
+        return self._get_authed_collection(api,'playlists', **kwargs)
 
     def get_bios(self, api, **kwargs):
         return self._get_collection(api,'bios', **kwargs)
