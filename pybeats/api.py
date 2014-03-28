@@ -238,9 +238,6 @@ class BeatsAPI(object):
     def get_user_playlists(self, user_id, **kwargs):
         return self._authed_get_resource_collection('user', user_id, 'playlists', **kwargs)
 
-    def get_user_ratings(self, user_id, **kwargs):
-        return self._authed_get_resource_collection('user', user_id, 'ratings', **kwargs)
-
     def get_user_images(self, user_id, **kwargs):
         return self._authed_get_resource_collection('user', user_id, 'images', **kwargs)
 
