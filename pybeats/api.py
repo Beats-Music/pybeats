@@ -246,8 +246,29 @@ class BeatsAPI(object):
     def get_playlist_metadata(self, playlist_id, **kwargs):
         return self._authed_get_resource_metadata('playlist', playlist_id, **kwargs)
 
+    def create_playlist(self, **kwargs):
+        return self._authed_request('post', self.base_path + '/playlists', data=kwargs)
+
+    def update_playlist(self, playlist_id, **kwargs):
+        return self._authed_request('put', self.base_path + '/playlists/{0}'.format(playlist_id), data=kwargs)
+
+    def delete_playlist(self, playlist_id):
+        return self._authed_request('delete', self.base_path + '/playlists/{0}'.format(playlist_id))
+
     def get_playlist_tracks(self, playlist_id, **kwargs):
         return self._authed_get_resource_collection('playlist', playlist_id, 'tracks', **kwargs)
+
+    def append_playlist_tracks(self, playlist_id, track_ids):
+        payload = {
+            'track_ids': track_ids
+        }
+        return self._authed_request('post', self.base_path + '/playlists/{0}/tracks'.format(playlist_id), data=payload)
+
+    def update_playlist_tracks(self, playlist_id, track_ids):
+        payload = {
+            'track_ids': track_ids
+        }
+        return self._authed_request('put', self.base_path + '/playlists/{0}/tracks'.format(playlist_id), data=payload)
 
     def get_playlist_subscribers(self, playlist_id, **kwargs):
         return self._authed_get_resource_collection('playlist', playlist_id, 'subscribers', **kwargs)
