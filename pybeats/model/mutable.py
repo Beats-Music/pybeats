@@ -34,6 +34,14 @@ class Mutable(Object):
     def get_my_library_tracks(self, api, **kwargs):
         return self._get_authed_collection(api, 'mymusic/tracks', **kwargs)
 
+    def add_to_my_library(self, api, items, **kwargs):
+        item_ids = [item.identifier for item in items]
+        data = api.bulk_add_to_my_library(self.identifier, item_ids)
+
+    def remove_from_my_library(self, api, items, **kwargs):
+        item_ids = [item.identifier for item in items]
+        data = api.bulk_remove_from_my_library(self.identifier, item_ids)
+
     # my playlists
 
     def get_my_playlists(self, api, **kwargs):
@@ -41,6 +49,14 @@ class Mutable(Object):
 
     def get_my_playlist_subscriptions(self, api, **kwargs):
         return self._get_authed_collection(api, 'playlist_subscriptions', **kwargs)
+
+    def subscribe_to_playlists(self, api, items, **kwargs):
+        item_ids = [item.identifier for item in items]
+        data = api.bulk_subscribe_to_playlists(self.identifier, item_ids)
+
+    def unsubscribe_from_playlists(self, api, items, **kwargs):
+        item_ids = [item.identifier for item in items]
+        data = api.bulk_unsubscribe_from_playlists(self.identifier, item_ids)
 
 class LoggedInUser(Mutable, User):
 

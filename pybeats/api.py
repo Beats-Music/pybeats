@@ -279,6 +279,24 @@ class BeatsAPI(object):
     def get_playlist_subscriptions_for_user(self, user_id, **kwargs):
         return self._authed_get_resource_collection('user', user_id, 'playlist_subscriptions', **kwargs)
 
+    def subscribe_to_playlist(self, user_id, item_id):
+        return self._authed_request('put', self.base_path + '/users/{0}/playlist_subscriptions/{1}'.format(user_id, item_id))
+
+    def unsubscribe_from_playlist(self, user_id, item_id):
+        return self._authed_request('delete', self.base_path + '/users/{0}/playlist_subscriptions/{1}'.format(user_id, item_id))
+
+    def bulk_subscribe_to_playlists(self, user_id, item_ids):
+        payload = {
+            'ids': item_ids
+        }
+        return self._authed_request('post', self.base_path + '/users/{0}/playlist_subscriptions'.format(user_id), data=payload)
+
+    def bulk_unsubscribe_from_playlists(self, user_id, item_ids):
+        payload = {
+            'ids': item_ids
+        }
+        return self._authed_request('delete', self.base_path + '/users/{0}/playlist_subscriptions'.format(user_id), params=payload)
+
     # recommendations
 
     def get_featured_content(self):
@@ -323,6 +341,24 @@ class BeatsAPI(object):
 
     def get_my_library_artist_albums(self, user_id, artist_id, **kwargs):
         return self._authed_get_collection(collection_path, prefix='/users/{0}/mymusic/{1}/albums'.format(user_id, artist_id), **kwargs)
+
+    def add_to_my_library(self, user_id, item_id):
+        return self._authed_request('put', self.base_path + '/users/{0}/mymusic/{1}'.format(user_id, item_id))
+
+    def remove_from_my_library(self, user_id, item_id):
+        return self._authed_request('delete', self.base_path + '/users/{0}/mymusic/{1}'.format(user_id, item_id))
+
+    def bulk_add_to_my_library(self, user_id, item_ids):
+        payload = {
+            'ids': item_ids
+        }
+        return self._authed_request('post', self.base_path + '/users/{0}/mymusic'.format(user_id), data=payload)
+
+    def bulk_remove_from_my_library(self, user_id, item_ids):
+        payload = {
+            'ids': item_ids
+        }
+        return self._authed_request('delete', self.base_path + '/users/{0}/mymusic'.format(user_id), params=payload)
 
     # audio
 

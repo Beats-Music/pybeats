@@ -15,6 +15,8 @@ class MyMusicAlbum(Album):
     def default_image_url(self, size):
         return "http://im.api.beatsmusic.com/api/albums/{0}/images/default?size={1}".format(self.identifier, size)
 
+    def get_tracks(self, api, **kwargs):
+        return self._get_authed_collection(api,'tracks', **kwargs)
 
 class MyMusicTrack(Track):
     type = "mymusic_track"
@@ -45,3 +47,9 @@ class MyMusicArtist(Artist):
 
     def default_image_url(self, size):
         return "http://im.api.beatsmusic.com/api/artists/{0}/images/default?size={1}".format(self.identifier, size)
+
+    def get_albums(self, api, **kwargs):
+        return self._get_authed_collection(api,'albums', **kwargs)
+
+    def get_tracks(self, api, **kwargs):
+        return self._get_authed_collection(api,'tracks', **kwargs)
