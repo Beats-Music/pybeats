@@ -128,8 +128,5 @@ class User(Object):
     def get_playlists(self, api, **kwargs):
         return self._get_authed_collection(api, 'playlists', **kwargs)
 
-    def get_bios(self, api, **kwargs):
-        return self._get_collection(api,'bios', **kwargs)
-
     def get_images(self, api, **kwargs):
         return self._get_collection(api,'images', **kwargs)
