@@ -225,7 +225,7 @@ class BeatsAPI(object):
         return self._get_resource_collection('genre', genre_id, 'bios', **kwargs)
 
     def get_genre_playlists(self, genre_id, **kwargs):
-        return self._get_resource_collection('genre', genre_id, 'playlists', **kwargs)
+        return self._authed_get_resource_collection('genre', genre_id, 'playlists', **kwargs)
 
     def get_genre_images(self, genre_id, **kwargs):
         return self._get_resource_collection('genre', genre_id, 'images', **kwargs)
