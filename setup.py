@@ -27,6 +27,8 @@ setup(
     long_description=read('README.rst'),
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
-        "License :: OSI Approved :: BSD License"
+        "License :: OSI Approved :: BSD License",
+        "Intended Audience :: Developers",
+        "Topic :: Multimedia :: Sound/Audio"
     ],
 )
