@@ -24,7 +24,7 @@ setup(
     install_requires=[
         "requests >= 2.3.0"
     ],
-    long_description=read('README'),
+    long_description=read('README.rst'),
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: BSD License"
