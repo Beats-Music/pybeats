@@ -24,6 +24,9 @@ After that, you can install this package with ``pip``.
 
     pip install git+https://github.com/Beats-Music/pybeats.git
 
+Any use, modification or distribution of this SDK is subject to the Beats Music API Terms of Use provided at `https://developer.beatsmusic.com/tos
+<https://developer.beatsmusic.com/tos>`_, and for purposes of these Beats Music API Terms of Use this SDK is a “Beats Music API."
+
 Models
 ------
 
